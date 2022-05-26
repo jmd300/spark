@@ -1,0 +1,14 @@
+对20220524 20 分区做了全量更新：全量数据的正排序截断是：sim 2000，hot 2000，bm25 3000。
+
+增量程序每四小时运行一次：00， 04， 08， 12， 16， 20
+如：12点取 9， 10， 11， 12点关键词召回数据
+1. 从 reddm.dm_log_note_recall_keyword_to_title_temp_hour 取出 四小时之内的 sim 召回结果（已经按照正排序2000， 倒排200截断）
+2. 从 reddm.dm_log_note_recall_keyword_to_title_temp_hour 取出 四小时之内的 hot 召回结果（已经按照正排序500， 倒排200截断）
+3. 从 reddm.dm_log_note_recall_keyword_to_title_temp_hour 取出 四小时之内的 bm25 召回结果（已经按照正排序500， 倒排50截断）
+4. 读取全量运营数据，和全量搜索接口得到的数据
+5. 将以上4部分数据union，合并map，作为A
+
+6. 从维护的小时级全量表里读取四个小时之前的全量数据作为B，B过滤掉运营的数据作为C
+7. 将A与C inner join 再 与 A union作为 D，合并map，按照全量数据截断规则截断作为E
+8. 从E中找出与B不一致的部分，作为最后的增量结果
+
